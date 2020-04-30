@@ -354,6 +354,11 @@ void clear_and_clean_page(struct page_info *page);
 
 unsigned int arch_get_dma_bitsize(void);
 
+static inline bool arch_has_directmap(void)
+{
+    return true;
+}
+
 #endif /*  __ARCH_ARM_MM__ */
 /*
  * Local variables:
