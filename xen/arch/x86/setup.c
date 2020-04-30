@@ -866,6 +866,7 @@ void __init noreturn __start_xen(unsigned long mbi_p)
     unsigned long eb_start, eb_end;
     bool acpi_boot_table_init_done = false, relocated = false;
     int ret;
+    bool vm_init_done = false;
     struct ns16550_defaults ns16550 = {
         .data_bits = 8,
         .parity    = 'n',
@@ -1449,12 +1450,23 @@ void __init noreturn __start_xen(unsigned long mbi_p)
             continue;
 
         if ( !acpi_boot_table_init_done &&
-             s >= (1ULL << 32) &&
-             !acpi_boot_table_init() )
+             s >= (1ULL << 32) )
         {
-            acpi_boot_table_init_done = true;
-            srat_parse_regions(s);
-            setup_max_pdx(raw_max_page);
+            /*
+             * We only initialise vmap and acpi after going through the bottom
+             * 4GiB, so that we have enough pages in the boot allocator.
+             */
+            if ( !vm_init_done )
+            {
+                vm_init();
+                vm_init_done = true;
+            }
+            if ( !acpi_boot_table_init() )
+            {
+                acpi_boot_table_init_done = true;
+                srat_parse_regions(s);
+                setup_max_pdx(raw_max_page);
+            }
         }
 
         if ( pfn_to_pdx((e - 1) >> PAGE_SHIFT) >= max_pdx )
@@ -1631,6 +1643,9 @@ void __init noreturn __start_xen(unsigned long mbi_p)
 
     init_frametable();
 
+    if ( !vm_init_done )
+        vm_init();
+
     if ( !acpi_boot_table_init_done )
         acpi_boot_table_init();
 
@@ -1668,12 +1683,6 @@ void __init noreturn __start_xen(unsigned long mbi_p)
         end_boot_allocator();
 
     system_state = SYS_STATE_boot;
-    /*
-     * No calls involving ACPI code should go between the setting of
-     * SYS_STATE_boot and vm_init() (or else acpi_os_{,un}map_memory()
-     * will break).
-     */
-    vm_init();
 
     bsp_stack = cpu_alloc_stack(0);
     if ( !bsp_stack )
