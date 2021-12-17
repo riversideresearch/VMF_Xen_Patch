@@ -582,7 +582,7 @@ struct domain *domain_create(domid_t domid,
     /* Sort out our idea of is_hardware_domain(). */
     if ( domid == 0 || domid == hardware_domid )
     {
-        if ( hardware_domid < 0 || hardware_domid >= DOMID_FIRST_RESERVED )
+        if ( hardware_domid < 0 || is_system_domid(hardware_domid) )
             panic("The value of hardware_dom must be a valid domain ID\n");
 
         old_hwdom = hardware_domain;

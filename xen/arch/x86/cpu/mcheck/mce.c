@@ -1518,7 +1518,7 @@ long cf_check do_mca(XEN_GUEST_HANDLE_PARAM(xen_mc_t) u_xen_mc)
             d = rcu_lock_domain_by_any_id(mc_msrinject->mcinj_domid);
             if ( d == NULL )
             {
-                if ( mc_msrinject->mcinj_domid >= DOMID_FIRST_RESERVED )
+                if ( is_system_domid(mc_msrinject->mcinj_domid) )
                     return x86_mcerr("do_mca inject: incompatible flag "
                                      "MC_MSRINJ_F_GPADDR with domain %d",
                                      -EINVAL, domid);

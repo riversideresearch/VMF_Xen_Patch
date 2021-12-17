@@ -52,7 +52,7 @@ static inline int is_free_domid(domid_t dom)
 {
     struct domain *d;
 
-    if ( dom >= DOMID_FIRST_RESERVED )
+    if ( is_system_domid(dom) )
         return 0;
 
     if ( (d = rcu_lock_domain_by_id(dom)) == NULL )
@@ -411,7 +411,7 @@ long cf_check do_domctl(XEN_GUEST_HANDLE_PARAM(xen_domctl_t) u_domctl)
         static domid_t rover = 0;
 
         dom = op->domain;
-        if ( (dom > 0) && (dom < DOMID_FIRST_RESERVED) )
+        if ( (dom > 0) && !is_system_domid(dom) )
         {
             ret = -EEXIST;
             if ( !is_free_domid(dom) )
@@ -421,7 +421,7 @@ long cf_check do_domctl(XEN_GUEST_HANDLE_PARAM(xen_domctl_t) u_domctl)
         {
             for ( dom = rover + 1; dom != rover; dom++ )
             {
-                if ( dom == DOMID_FIRST_RESERVED )
+                if ( is_system_domid(dom) )
                     dom = 1;
                 if ( is_free_domid(dom) )
                     break;
@@ -539,7 +539,7 @@ long cf_check do_domctl(XEN_GUEST_HANDLE_PARAM(xen_domctl_t) u_domctl)
         if ( !d )
         {
             ret = -EINVAL;
-            if ( op->domain >= DOMID_FIRST_RESERVED )
+            if ( is_system_domid(op->domain) )
                 break;
 
             rcu_read_lock(&domlist_read_lock);
