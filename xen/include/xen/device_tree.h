@@ -101,9 +101,12 @@ struct dt_device_node {
      */
     struct list_head domain_list;
 
+#ifdef CONFIG_ARM
     struct device dev;
+#endif
 };
 
+#ifdef CONFIG_ARM
 #define dt_to_dev(dt_node)  (&(dt_node)->dev)
 
 static inline struct dt_device_node *dev_to_dt(struct device *dev)
@@ -112,6 +115,7 @@ static inline struct dt_device_node *dev_to_dt(struct device *dev)
 
     return container_of(dev, struct dt_device_node, dev);
 }
+#endif
 
 #define MAX_PHANDLE_ARGS 16
 struct dt_phandle_args {
