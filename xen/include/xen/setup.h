@@ -93,7 +93,11 @@ int __init hyperlaunch_init(const void *fdt);
 
 #ifdef CONFIG_MULTIBOOT
 bool __init hyperlaunch_mb_init(module_t *mods);
+void __init hyperlaunch_mb_headroom(void);
 #endif
+
+uint32_t __init hyperlaunch_create_domains(
+    struct domain **hwdom, const char *kextra, const char *loader);
 
 #else /* CONFIG_HYPERLAUNCH */
 
@@ -109,7 +113,19 @@ static inline bool __init hyperlaunch_mb_init(module_t *mods)
 {
     return false;
 }
+
+static inline void __init hyperlaunch_mb_headroom(void)
+{
+    return;
+}
 #endif
 
+static inline uint32_t __init hyperlaunch_create_domains(
+    struct domain **hwdom, const char *kextra, const char *loader)
+{
+    return 0;
+}
+
 #endif /* CONFIG_HYPERLAUNCH */
+
 #endif /* XEN_SETUP_H */
