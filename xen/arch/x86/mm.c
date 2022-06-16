@@ -5146,7 +5146,8 @@ mfn_t xen_map_to_mfn(unsigned long va)
 
     L3T_INIT(l3page);
     CHECK_MAPPED(pl3e);
-    l3page = mfn_to_page(domain_page_map_to_mfn(pl3e));
+    if (locking)
+        l3page = mfn_to_page(domain_page_map_to_mfn(pl3e));
     L3T_LOCK(l3page);
 
     CHECK_MAPPED(l3e_get_flags(*pl3e) & _PAGE_PRESENT);
@@ -5219,7 +5220,8 @@ int map_pages_to_xen(
         if ( !pl3e )
             goto out;
 
-        current_l3page = mfn_to_page(domain_page_map_to_mfn(pl3e));
+        if (locking)
+            current_l3page = mfn_to_page(domain_page_map_to_mfn(pl3e));
         L3T_LOCK(current_l3page);
         ol3e = *pl3e;
 
@@ -5628,7 +5630,8 @@ int modify_xen_mappings(unsigned long s, unsigned long e, unsigned int nf)
         if ( !pl3e )
             goto out;
 
-        current_l3page = mfn_to_page(domain_page_map_to_mfn(pl3e));
+        if (locking)
+            current_l3page = mfn_to_page(domain_page_map_to_mfn(pl3e));
         L3T_LOCK(current_l3page);
 
         if ( !(l3e_get_flags(*pl3e) & _PAGE_PRESENT) )
