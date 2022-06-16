@@ -17,10 +17,14 @@
 #define FIXADDR_TOP (VMAP_VIRT_END - PAGE_SIZE)
 #define FIXADDR_X_TOP (XEN_VIRT_END - PAGE_SIZE)
 
+#define FIXMAP_PMAP_BEGIN FIX_PMAP_BEGIN
+#define FIXMAP_PMAP_END FIX_PMAP_END
+
 #ifndef __ASSEMBLY__
 
 #include <xen/acpi.h>
 #include <xen/pfn.h>
+#include <xen/pmap.h>
 #include <asm/apicdef.h>
 #include <asm/msi.h>
 #include <acpi/apei.h>
@@ -48,6 +52,8 @@ enum fixed_addresses {
     FIX_XEN_SHARED_INFO,
 #endif /* CONFIG_XEN_GUEST */
     /* Everything else should go further down. */
+    FIX_PMAP_BEGIN,
+    FIX_PMAP_END = FIX_PMAP_BEGIN + NUM_FIX_PMAP - 1,
     FIX_APIC_BASE,
     FIX_IO_APIC_BASE_0,
     FIX_IO_APIC_BASE_END = FIX_IO_APIC_BASE_0 + MAX_IO_APICS-1,
